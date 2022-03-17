@@ -1,12 +1,7 @@
 ﻿Imports System
 Imports Wisej.Web
 
-
-
 Public Class DataNavigator
-
-
-
     Public Enum EventType
         Move
         MoveFirst
@@ -24,8 +19,6 @@ Public Class DataNavigator
     End Enum
 
     Public ListViewColumns As New ListViewColumns
-
-
     Private _DataGridListViewDataTable As DataTable
     Private _DataGridListViewDefaultRowHeight As Integer = 24
     Private _MovePreviousCaption As String = "Prev."
@@ -107,7 +100,7 @@ Public Class DataNavigator
     Event eUndoRequest(ByRef Cancel As Boolean)
 
     Private _ReadOnlyMode As Boolean = False
-    Private _AddNewPending As Boolean = False
+    'Private _AddNewPending As Boolean = False
     Private _DeletePending As Boolean = False
     Private _SavePending As Boolean = False
     Private _PrintPending As Boolean = False
@@ -303,6 +296,7 @@ Public Class DataNavigator
         Me._InitDataNavigator(LoadData)
     End Sub
 
+
     Private Sub _InitDataNavigator(Optional ByVal LoadData As Boolean = False)
 
         If LoadData Then
@@ -386,7 +380,7 @@ Public Class DataNavigator
 
                 AffectedRecords = Me.DbObject.UpdateFromDataTable(dt)
                 Me._DataGridRow = DataGridView.CurrentRow.Index
-                Me._AddNewPending = False
+                'Me._AddNewPending = False
 
             Catch ex As Exception
 
@@ -446,7 +440,7 @@ Public Class DataNavigator
                 AffectedRecords = Me.DbObject.UpdateFromDataTable(dt)
                 DataGridView.DataSource = dt
                 Me._DataGridRow = DataGridView.CurrentRow.Index
-                Me._AddNewPending = False
+                'Me._AddNewPending = False
             Catch ex As Exception
                 '
                 '
@@ -557,7 +551,7 @@ Public Class DataNavigator
                 End If
 
                 DataGridView.CurrentCell = DataGridView(ColumnIndex, RowIndex)
-                Me._AddNewPending = True
+                'Me._AddNewPending = True
                 Me._DataGridRow = DataGridView.CurrentCell.RowIndex
                 Me.SetButtonsForAddNew()
 
@@ -633,16 +627,13 @@ Public Class DataNavigator
             dt.RejectChanges()
 
             Me._DataGrid.CancelEdit()
-
-            For Each Row As DataGridViewRow In Me._DataGrid.Rows
-
-            Next
-            If Me._AddNewPending Then
+            Me._DataGrid.Refresh()
+            If Me.AddNewPending Then
                 Me._DataGrid.Refresh()
             End If
         End If
 
-        Me._AddNewPending = False
+        'Me._AddNewPending = False
         SetDataNavigator()
 
     End Sub
@@ -656,8 +647,8 @@ Public Class DataNavigator
         _SavePending = False
     End Sub
     Sub CancelAddNew()
-        _AddNewPending = False
-
+        '_AddNewPending = False
+        Me._DbObject.UndoChanges()
     End Sub
 
     Sub CancelUndo()
@@ -701,13 +692,10 @@ Public Class DataNavigator
         End Set
     End Property
 
-    Property AddNewPending() As Boolean
+    ReadOnly Property AddNewPending() As Boolean
         Get
-            AddNewPending = _AddNewPending
+            AddNewPending = Me.DbObject.AddNewStatus
         End Get
-        Set(ByVal value As Boolean)
-            _AddNewPending = value
-        End Set
 
     End Property
 
@@ -1352,7 +1340,7 @@ Public Class DataNavigator
     End Sub
     Private Sub Delete()
 
-
+        'Me._AddNewPending = False
         Dim Cancel As Boolean = False
         RaiseEvent eDeleteRequest(Cancel)
 
@@ -1393,10 +1381,12 @@ Public Class DataNavigator
                     SetButtonForSave()
                 End If
                 SetButtonForSave()
+                'Me._AddNewPending = False
                 RaiseEvent eSave()
             End If
         Else
             SetButtonForSave()
+            'Me._AddNewPending = False
             RaiseEvent eSave()
         End If
 
@@ -1563,11 +1553,14 @@ Public Class DataNavigator
             Else
                 _DbObject.AddNew()
             End If
+            'Me._AddNewPending = True
             SetButtonsForAddNew()
-        Else
 
-            RaiseEvent eAddNew()
+        Else
+            'Me._AddNewPending = True
             SetButtonsForAddNew()
+            RaiseEvent eAddNew()
+
         End If
 
     End Sub
@@ -1815,7 +1808,7 @@ Public Class DataNavigator
         Me.UpdateRecordLabel()
 
     End Sub
-    Private Sub Undo()
+    Public Sub Undo()
 
         Dim Cancel As Boolean = False
         RaiseEvent eUndoRequest(Cancel)
@@ -1824,16 +1817,12 @@ Public Class DataNavigator
         Me.SetButtonForUndo()
         Me.UpdateRecordLabel()
 
-        If Me._ManageNavigation = True Then
-
-            If Me._DataGridActive = True And Me._DataGrid IsNot Nothing Then
-                Me.DataGrid_Undo()
-            Else
-                _DbObject.UndoChanges()
-            End If
+        If Me._DataGridActive = True And Me._DataGrid IsNot Nothing Then
+            Me.DataGrid_Undo()
         Else
-            RaiseEvent eUndo()
+            _DbObject.UndoChanges()
         End If
+        'Me._AddNewPending = False
 
     End Sub
 
@@ -1863,7 +1852,7 @@ Public Class DataNavigator
         Me.bNew.Enabled = False
         Me.bClose.Enabled = False
         Me.bDelete.Enabled = False
-
+        'Me._AddNewPending = True
         Select Case Me.DataGridActive
             Case False
             Case True
@@ -2013,9 +2002,14 @@ Public Class DataNavigator
     Private Sub _mDBObject_DataEventAfter(ByVal EventType As BasicDAL.DataEventType) Handles _DbObject.DataEventAfter
 
         SetDataNavigator()
+
         Select Case EventType
+            Case BasicDAL.DataEventType.AddNew
+                'Me._AddNewPending = True
             Case Is = BasicDAL.DataEventType.Query, BasicDAL.DataEventType.Delete, BasicDAL.DataEventType.DeleteAll, BasicDAL.DataEventType.DeleteFromDataSet, BasicDAL.DataEventType.DeleteFromDataTable
                 Me.DataGridListViewInit()
+            Case Else
+                'Me._AddNewPending = False
         End Select
 
     End Sub
