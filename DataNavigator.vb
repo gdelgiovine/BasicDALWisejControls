@@ -694,7 +694,11 @@ Public Class DataNavigator
 
     ReadOnly Property AddNewPending() As Boolean
         Get
-            AddNewPending = Me.DbObject.AddNewStatus
+            AddNewPending = False
+            If Me._DbObject IsNot Nothing Then
+                AddNewPending = Me._DbObject.AddNewStatus
+            End If
+
         End Get
 
     End Property
@@ -1816,12 +1820,16 @@ Public Class DataNavigator
 
         Me.SetButtonForUndo()
         Me.UpdateRecordLabel()
-
-        If Me._DataGridActive = True And Me._DataGrid IsNot Nothing Then
-            Me.DataGrid_Undo()
+        If Me._ManageNavigation = True Then
+            If Me._DataGridActive = True And Me._DataGrid IsNot Nothing Then
+                Me.DataGrid_Undo()
+            Else
+                _DbObject.UndoChanges()
+            End If
         Else
-            _DbObject.UndoChanges()
+            RaiseEvent eUndo()
         End If
+
         'Me._AddNewPending = False
 
     End Sub
