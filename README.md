@@ -20,6 +20,7 @@ Visual Stusio 2019 version, CR ServicePack SP33:
 https://origin-az.softwaredownloads.sap.com/public/file/0020000001649932022
 
 Crystal Reports Runtimes
+
 64 Bit: https://origin-az.softwaredownloads.sap.com/public/file/0020000001649962022
 32 Bit: https://origin-az.softwaredownloads.sap.com/public/file/0020000001649922022
 
