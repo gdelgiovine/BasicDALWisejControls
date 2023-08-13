@@ -3,7 +3,7 @@ BasicDAL Wisej Controls 3.X for Wisej.NET 3.x versions
 
 
 NOTE: The app use Crystal Reports. The modules are referenced by BasicDALWisejControls as Nuget packages but is 
-required to install the Crystal Reports to edit the report and of cours the Crystal Report for Viewing the report
+required to install the Crystal Reports to edit the report and the Crystal Report for Viewing the report
 on deploy machine :-)
 
 Crystal Report for Visual Studio is free.
