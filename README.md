@@ -1,6 +1,8 @@
 # BasicDALWisejControls
 BasicDAL Wisej Controls 3.X for Wisej.NET 3.x versions 
 
+The CXMLSession library is also included as DLL in this repository. Download and add a reference.
+You can download the CXMLSession sources at https://github.com/gdelgiovine/CXMLSession
 
 NOTE: The app use Crystal Reports. The modules are referenced by BasicDALWisejControls as Nuget packages but is 
 required to install the Crystal Reports to edit the report and the Crystal Report for Viewing the report
